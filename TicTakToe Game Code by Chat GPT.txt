@@ -1,0 +1,118 @@
+import 'package:flutter/material.dart';
+
+// void main() {
+//   runApp(TicTacToe());
+// }
+
+class TicTacToe extends StatefulWidget {
+  @override
+  _TicTacToeState createState() => _TicTacToeState();
+}
+
+class _TicTacToeState extends State<TicTacToe> {
+  List<String> _gameBoard = List.filled(9, '');
+  bool _playerOneTurn = true;
+  String _winner = '';
+
+  void _resetGame() {
+    setState(() {
+      _gameBoard = List.filled(9, '');
+      _playerOneTurn = true;
+      _winner = '';
+    });
+  }
+
+  void _playMove(int index) {
+    setState(() {
+      if (_gameBoard[index] != '' || _winner != '') {
+        return;
+      }
+      _gameBoard[index] = _playerOneTurn ? 'X' : 'O';
+      _playerOneTurn = !_playerOneTurn;
+      _checkWinner();
+    });
+  }
+
+  void _checkWinner() {
+    List<List<int>> _winningCombinations = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+    for (var combination in _winningCombinations) {
+      if (_gameBoard[combination[0]] != '' &&
+          _gameBoard[combination[0]] == _gameBoard[combination[1]] &&
+          _gameBoard[combination[1]] == _gameBoard[combination[2]]) {
+        setState(() {
+          _winner = _gameBoard[combination[0]];
+        });
+        break;
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Tic Tac Toe'),
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: GridView.builder(
+                padding: EdgeInsets.all(16.0),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  mainAxisSpacing: 16.0,
+                  crossAxisSpacing: 16.0,
+                  childAspectRatio: 1.0,
+                ),
+                itemCount: 9,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () => _playMove(index),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: _gameBoard[index] == ''
+                            ? Colors.grey[200]
+                            : Colors.white,
+                        border: Border.all(),
+                      ),
+                      child: Center(
+                        child: Text(
+                          _gameBoard[index],
+                          style: TextStyle(fontSize: 48.0),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 16.0),
+              child: Text(
+                _winner != '' ? 'Winner: $_winner' : '',
+                style: TextStyle(fontSize: 24.0),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: _resetGame,
+              child: Text(
+                'Reset',
+                style: TextStyle(fontSize: 24.0),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
